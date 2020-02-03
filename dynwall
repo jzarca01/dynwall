@@ -39,6 +39,7 @@ then
 fi
 
 SCRIPT_PATH="$(pwd)"
+LOWERCASE_PACKAGENAME=`echo "$NAME" | awk '{ print tolower($1) }'`
 
 LIGHT_PATH="$(getAbsolutePathFromFilename $LIGHT_FILENAME)"
 DARK_PATH="$(getAbsolutePathFromFilename $DARK_FILENAME)"
@@ -57,7 +58,7 @@ source ~/.bash_profile
 
 echo "Creating project from template..."
 cd $TEMP_DIR
-$THEOS/bin/nic.pl --nic dynwall.nic.tar --name $NAME --user "Jeremie Zarca" --packagename "com.zarcainc.$NAME"
+$THEOS/bin/nic.pl --nic dynwall.nic.tar --name $NAME --user "Jeremie Zarca" --packagename "com.zarcainc.$LOWERCASE_PACKAGENAME"
 
 echo "Project created, copying image files..."
 cp -v "$LIGHT_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Light.jpeg"
