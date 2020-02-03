@@ -6,11 +6,12 @@ helpFunction()
    echo "*    Dynamic Wallpaper Tweak Generator    *"
    echo "*                                         *"
    echo "*******************************************\n\n"
-   echo "Usage: $0 -n MyAwesomeWallpaper -l Light.jpeg -d another_image.jpeg [-i true]"
-   echo -e "\t-n Name of dynamic wallpaper"
-   echo -e "\t-l Light filename jpeg"
-   echo -e "\t-d Dark filename jpeg"
-   echo -e "\t-i true If install only"
+   echo "Usage: $0 -n MyAwesomeWallpaper -l Light.jpeg -d another_image.jpeg [-t thumbnail.png] [-i true]\n"
+   echo "\t-n Name of dynamic wallpaper"
+   echo "\t-l Light filename jpeg"
+   echo "\t-d Dark filename jpeg"
+   echo "\t-t Thumbnail filename png"
+   echo "\t-i true If install only"
    exit 1 # Exit script after printing help
 }
 
@@ -19,12 +20,13 @@ getAbsolutePathFromFilename() {
   echo "$PWD/$(basename $1)"
 }
 
-while getopts "n:l:d:i:" opt
+while getopts "n:l:d:i:t:" opt
 do
    case "$opt" in
       n ) NAME="$OPTARG" ;;
       l ) LIGHT_FILENAME="$OPTARG" ;;
       d ) DARK_FILENAME="$OPTARG" ;;
+      t ) THUMBNAIL="$OPTARGS" ;;
       i ) INSTALL_FLAG="$OPTARG" ;;
       ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
    esac
@@ -41,6 +43,12 @@ SCRIPT_PATH="$(pwd)"
 LIGHT_PATH="$(getAbsolutePathFromFilename $LIGHT_FILENAME)"
 DARK_PATH="$(getAbsolutePathFromFilename $DARK_FILENAME)"
 
+if [ -z "$THUMBNAIL" ]
+then
+   THUMBNAIL_PATH="$(getAbsolutePathFromFilename $LIGHT_FILENAME)"
+fi
+
+
 TEMP_DIR="$(mktemp -d /tmp/dynwall.$RANDOM)"
 
 cp -v "$(getAbsolutePathFromFilename dynwall.nic.tar)" "$TEMP_DIR"
@@ -54,6 +62,11 @@ $THEOS/bin/nic.pl --nic dynwall.nic.tar --name $NAME --user "Jeremie Zarca" --pa
 echo "Project created, copying image files..."
 cp -v "$LIGHT_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Light.jpeg"
 cp -v "$DARK_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Dark.jpeg"
+
+if [ -z "$THUMBNAIL_PATH" ]
+then
+   cp -v "$THUMBNAIL_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Thumbnail.png"
+fi
 
 open $TEMP_DIR
 cd $NAME
