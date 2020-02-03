@@ -1,0 +1,73 @@
+#!/bin/sh
+helpFunction()
+{
+   echo "*******************************************"
+   echo "*                                         *"
+   echo "*    Dynamic Wallpaper Tweak Generator    *"
+   echo "*                                         *"
+   echo "*******************************************\n\n"
+   echo "Usage: $0 -n MyAwesomeWallpaper -l Light.jpeg -d another_image.jpeg [-i true]"
+   echo -e "\t-n Name of dynamic wallpaper"
+   echo -e "\t-l Light filename jpeg"
+   echo -e "\t-d Dark filename jpeg"
+   echo -e "\t-i true If install only"
+   exit 1 # Exit script after printing help
+}
+
+getAbsolutePathFromFilename() {
+  cd "$(dirname $1)"
+  echo "$PWD/$(basename $1)"
+}
+
+while getopts "n:l:d:i:" opt
+do
+   case "$opt" in
+      n ) NAME="$OPTARG" ;;
+      l ) LIGHT_FILENAME="$OPTARG" ;;
+      d ) DARK_FILENAME="$OPTARG" ;;
+      i ) INSTALL_FLAG="$OPTARG" ;;
+      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
+   esac
+done
+
+if [ -z "$NAME" ] || [ -z "$LIGHT_FILENAME" ] || [ -z "$DARK_FILENAME" ]
+then
+   echo "Some or all of the parameters are empty";
+   helpFunction
+fi
+
+SCRIPT_PATH="$(pwd)"
+
+LIGHT_PATH="$(getAbsolutePathFromFilename $LIGHT_FILENAME)"
+DARK_PATH="$(getAbsolutePathFromFilename $DARK_FILENAME)"
+
+TEMP_DIR="$(mktemp -d /tmp/dynwall.$RANDOM)"
+
+cp -v "$(getAbsolutePathFromFilename dynwall.nic.tar)" "$TEMP_DIR"
+
+source ~/.bash_profile
+
+echo "Creating project from template..."
+cd $TEMP_DIR
+$THEOS/bin/nic.pl --nic dynwall.nic.tar --name $NAME --user "Jeremie Zarca" --packagename "com.zarcainc.$NAME"
+
+echo "Project created, copying image files..."
+cp -v "$LIGHT_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Light.jpeg"
+cp -v "$DARK_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Dark.jpeg"
+
+open $TEMP_DIR
+cd $NAME
+
+if [ -z "$INSTALL_FLAG" ]
+then
+   echo "Packaging deb file..."
+   make package
+   cp packages/* "$SCRIPT_PATH/$NAME.deb"
+else
+   echo "Installing deb file on the phone..."
+   make package install
+   ssh root@$THEOS_DEVICE_IP killall SpringBoard
+fi
+
+rm -rf $TEMP_DIR
+echo "Done."
