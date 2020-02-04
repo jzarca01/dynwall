@@ -46,7 +46,7 @@ DARK_PATH="$(getAbsolutePathFromFilename $DARK_FILENAME)"
 
 if [ -z "$THUMBNAIL" ]
 then
-   THUMBNAIL_PATH="$(getAbsolutePathFromFilename $LIGHT_FILENAME)"
+   THUMBNAIL_PATH="$(getAbsolutePathFromFilename $THUMBNAIL)"
 fi
 
 
