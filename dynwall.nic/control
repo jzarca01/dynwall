@@ -1,0 +1,9 @@
+Package: @@PACKAGENAME@@
+Name: @@FULLPROJECTNAME@@
+Version: 0.0.1
+Depends: wallpaperloader, firmware (>= 13.0)
+Architecture: iphoneos-arm
+Description: Dynamic wallpaper
+Maintainer: @@USER@@
+Author: @@USER@@
+Section: Wallpaper
