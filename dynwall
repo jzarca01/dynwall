@@ -49,15 +49,17 @@ then
    THUMBNAIL_PATH="$(getAbsolutePathFromFilename $THUMBNAIL)"
 fi
 
-
 TEMP_DIR="$(mktemp -d /tmp/dynwall.$RANDOM)"
-
-cp -v "$(getAbsolutePathFromFilename dynwall.nic.tar)" "$TEMP_DIR"
 
 source ~/.bash_profile
 
-echo "Creating project from template..."
+echo "Creating NIC template from sources..."
+$THEOS/bin/nicify.pl dynwall.nic
+cp -v "$(getAbsolutePathFromFilename dynwall.nic.tar)" "$TEMP_DIR"
+
 cd $TEMP_DIR
+
+echo "Creating project from template..."
 $THEOS/bin/nic.pl --nic dynwall.nic.tar --name $NAME --user "Jeremie Zarca" --packagename "com.zarcainc.$LOWERCASE_PACKAGENAME"
 
 echo "Project created, copying image files..."
@@ -69,7 +71,7 @@ then
    cp -v "$THUMBNAIL_PATH" "$TEMP_DIR/$NAME/Resources/$NAME/Thumbnail.png"
 fi
 
-open $TEMP_DIR
+#open $TEMP_DIR
 cd $NAME
 
 if [ -z "$INSTALL_FLAG" ]
